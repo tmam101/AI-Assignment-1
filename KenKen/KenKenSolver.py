@@ -57,21 +57,33 @@ def print_puzzle():
     print("")
 
 
-def backtrack(index):
-    # TODO base case at the end
+def clearPuzzle():
+    for cell in cells:
+        cell.number = 0
+    print_puzzle()
+
+
+# TODO Ensure handling of iteration count is correct
+def backtrack(index, iterations):
+    # Base case: reached the end
     if index == len(cells):
         print_puzzle()
+        print(iterations)
         return True
     for i in range(rowLength):
         i = i + 1
         if cells[index].assignValue(i):
-            if backtrack(index + 1):
+            if backtrack(index + 1, iterations + 1):
                 return True
             else:
                 cells[index].removeValue(i)
     return False
 
+def bestBacktracking(index):
+    if index == len(cells):
+        return True
+
 
 
 get_input()
-backtrack(0)
+backtrack(0, 0)
