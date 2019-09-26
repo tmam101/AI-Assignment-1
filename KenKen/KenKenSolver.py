@@ -116,23 +116,24 @@ class KenKenSolver:
             boxList.append(self.boxes[key])
         self.bestBacktrackingSearch(boxList, index)
 
-
     def bestBacktrackingSearch(self, boxList, index):
-        # if index == len(boxList):
-        #     self.print_puzzle()
-        #     # print(self.bestBacktrackingIterations)
-        #     return True
+        if index == len(boxList):
+            self.print_puzzle()
+            # print(self.bestBacktrackingIterations)
+            return True
         box = boxList[index]
         options = box.getOptions()
+        self.print_puzzle()
         for i in range(len(options)):
             if box.applyValues(options[i]):
-                self.print_puzzle()
+                # self.print_puzzle()
                 if self.bestBacktrackingSearch(boxList, index + 1):
                     return True
                 else:
                     for o in options[i]:
                         for cell in box.cells:
-                            cell.bestRemoveValue(i)
+                            cell.bestRemoveValue(o)
+                    self.print_puzzle()
                     # box.removeValues()
         return False
 
@@ -234,9 +235,3 @@ class KenKenSolver:
             if not (cell.isValueValid(cell.number)):
                 invalid += 1
         return invalid
-
-    # get_input()
-    # backtrack(0, 0)
-    # bestBacktracking(0, 0)
-    # for cell in cells:
-    #     print(cell.validValues)
