@@ -3,6 +3,7 @@ from Cell import Cell
 from RowColumn import RowColumn
 import math
 import random
+import time
 
 
 class KenKenSolver:
@@ -124,11 +125,13 @@ class KenKenSolver:
                     self.sortBoxList() #todo probably inefficient
 
     def bestBacktracking(self, index):
+        start_time = time.time()
         # boxList = []
         for key in self.boxes:
             self.boxList.append(self.boxes[key])
-        self.sortBoxList()
+        # self.sortBoxList()
         self.bestBacktrackingSearch(self.boxList, index)
+        print("--- %s seconds ---" % (time.time() - start_time))
 
     def bestBacktrackingSearch(self, boxList, index):
         self.bestBacktrackingIterations += 1
@@ -136,7 +139,7 @@ class KenKenSolver:
             self.print_puzzle()
             print(self.bestBacktrackingIterations)
             return True
-        self.print_puzzle()
+        # self.print_puzzle()
         box = boxList[index]
         options = box.getOptions()
         for i in range(len(options)):

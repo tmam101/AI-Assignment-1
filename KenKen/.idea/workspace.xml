@@ -4,6 +4,7 @@
     <list default="true" id="ae77d9d1-91b4-466e-8188-f03ec06849e3" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/KenKenSolver.py" beforeDir="false" afterPath="$PROJECT_DIR$/KenKenSolver.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Main.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -123,12 +124,12 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/KenKenSolver.py</url>
-          <line>138</line>
+          <line>141</line>
           <option name="timeStamp" value="59" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/KenKenSolver.py</url>
-          <line>130</line>
+          <line>132</line>
           <option name="timeStamp" value="60" />
         </line-breakpoint>
       </breakpoints>
