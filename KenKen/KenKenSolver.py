@@ -66,7 +66,7 @@ class KenKenSolver:
 
     # TODO Ensure handling of iteration count is correct
     def backtrack(self, index):
-        self.backtrackIterations += 1
+        # self.backtrackIterations += 1
         # Base case: reached the end
         if index == len(self.cells):
             self.print_puzzle()
@@ -110,31 +110,44 @@ class KenKenSolver:
     #                 cell.removeValue(i)
     #     return False
 
+    boxList = []
+
+    def sortBoxList(self):
+        for i in range(len(self.boxList)):
+            value = len(self.boxList[i].getOptions())
+            if i < len(self.boxList) - 1:
+                nextValue = len(self.boxList[i+1].getOptions())
+                if value < nextValue:
+                    temp = self.boxList[i+1]
+                    self.boxList[i+1] = self.boxList[i]
+                    self.boxList[i] = temp
+                    self.sortBoxList() #todo probably inefficient
+
     def bestBacktracking(self, index):
-        boxList = []
+        # boxList = []
         for key in self.boxes:
-            boxList.append(self.boxes[key])
-        self.bestBacktrackingSearch(boxList, index)
+            self.boxList.append(self.boxes[key])
+        self.sortBoxList()
+        self.bestBacktrackingSearch(self.boxList, index)
 
     def bestBacktrackingSearch(self, boxList, index):
+        self.bestBacktrackingIterations += 1
         if index == len(boxList):
             self.print_puzzle()
-            # print(self.bestBacktrackingIterations)
+            print(self.bestBacktrackingIterations)
             return True
+        self.print_puzzle()
         box = boxList[index]
         options = box.getOptions()
-        self.print_puzzle()
         for i in range(len(options)):
+            # self.bestBacktrackingIterations += 1
             if box.applyValues(options[i]):
-                # self.print_puzzle()
                 if self.bestBacktrackingSearch(boxList, index + 1):
                     return True
                 else:
                     for o in options[i]:
                         for cell in box.cells:
                             cell.bestRemoveValue(o)
-                    self.print_puzzle()
-                    # box.removeValues()
         return False
 
     #   Most Constrained Variable:
