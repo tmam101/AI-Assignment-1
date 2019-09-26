@@ -2,6 +2,7 @@ from Box import Box
 from Cell import Cell
 from RowColumn import RowColumn
 import math
+import random
 
 
 class KenKenSolver:
@@ -19,7 +20,6 @@ class KenKenSolver:
         rows.append(row)
         columns.append(column)
 
-
     def get_input(self):
         # Get each line of letters
         for x in range(self.rowLength):
@@ -34,7 +34,7 @@ class KenKenSolver:
             lineSections = raw_input().split(':')
             character = lineSections[0]
             numberAndOperation = lineSections[1]
-            operation = numberAndOperation[len(numberAndOperation)-1]
+            operation = numberAndOperation[len(numberAndOperation) - 1]
             number = numberAndOperation[:-1]
             box = Box(number, operation)
             self.boxes[character] = box
@@ -48,7 +48,6 @@ class KenKenSolver:
             self.cells[cellIndex].row = self.rows[cellIndex / self.rowLength]
             self.cells[cellIndex].column = self.columns[cellIndex % self.rowLength]
 
-
     def print_puzzle(self):
         line = ""
         for i in range(len(self.cells)):
@@ -59,12 +58,10 @@ class KenKenSolver:
         print(line)
         print("")
 
-
     def clearPuzzle(self):
         for cell in self.cells:
             cell.removeValue(cell.number)
         self.backtrackIterations = 0
-
 
     # TODO Ensure handling of iteration count is correct
     def backtrack(self, index):
@@ -74,10 +71,10 @@ class KenKenSolver:
             print(self.backtrackIterations)
             self.clearPuzzle()
             return True
-        for i in range(self.rowLength):  #O(n)
+        for i in range(self.rowLength):  # O(n)
             i = i + 1
             self.backtrackIterations += 1
-            if self.cells[index].assignValue(i): #O(n^2)
+            if self.cells[index].assignValue(i):  # O(n^2)
                 if self.backtrack(index + 1):
                     return True
                 else:
@@ -91,18 +88,18 @@ class KenKenSolver:
             print(iterations)
             return True
         cell = self.cells[index]
-        self. print_puzzle()
+        self.print_puzzle()
         # Rather than iterate from 1 to 6 if there are 6 cells in a row, for example,
         # Iterate only through the numbers that are valid from the start.
         # TODO is this actually more efficient?
         validValues = []
-        for i in range(self. rowLength): #O(n)
+        for i in range(self.rowLength):  # O(n)
             i = i + 1
             if cell.row.isValueValid(i) and cell.column.isValueValid(i):
                 validValues.append(i)
-        for i in validValues: #O(logn)
+        for i in validValues:  # O(logn)
             iterations += 1
-            if cell.assignValue(i): #O(n^2)
+            if cell.assignValue(i):  # O(n^2)
                 if self.bestBacktracking(index + 1, iterations):
                     return True
                 else:
@@ -123,6 +120,91 @@ class KenKenSolver:
 
     # TODO Start at the largest(or smallest) box, recursively go to the smaller(or larger) boxes
 
+    def localSearch(self):
+        # number of random restarts
+        for i in range(1000):
+            degrees = 500
+            self.assignRandomValues()
+            print('current puzzle')
+            self.print_puzzle()
+            print(' ')
+            # evaluate current state
+            currEn = self.getConstraintsViolated()
+            if currEn == 0:
+                self.print_puzzle()
+                return 'solution found'
+            # store old value and which cell in case of rejection
+            # change 1 cell value (neighbor node of slightly different state);
+            # check: is this different from old value?
+            improving = True
+            iterations = 0
+            numWorse = 0
+
+            while improving:
+                currValCell = self.cells[1].number
+                iterations += 1
+                if iterations % 5 == 0:
+                    degrees = degrees * 0.8
+                    print('degrees')
+                    print(degrees)
+                    print(' ')
+                valDiff = False
+                cellToPull = random.randint(1, (len(self.columns) ^ 2))
+                while not valDiff:
+                    self.cells[cellToPull].number = random.randint(1, len(self.columns))
+                    if currValCell != self.cells[cellToPull].number:
+                        valDiff = True
+                # evaluate new state
+                # print(iterations)
+
+                nextEn = self.getConstraintsViolated()
+                print('next puzzle')
+                self.print_puzzle()
+                print('constraints violated: ')
+                print(nextEn)
+                print (' ')
+                # if state is better, accept. otherwise, accept based on probability
+                if nextEn < currEn:
+                    print('next is better')
+                    currEn = nextEn
+                    numWorse = 0
+                else:
+                    numWorse += 1
+                    if self.getProbabilityAccept(degrees, nextEn) > random.random:
+                        currEn = nextEn
+                        print('next is worse, accept anyway with prob:')
+                        print (self.getProbabilityAccept(degrees, nextEn))
+                        print (' ')
+                    else:
+                        # restore puzzle to former state- neighbor not accepted
+                        self.cells[1].number = currValCell
+                # if not better after x iterations, random restart but store current best solution
+                if numWorse > 100:
+                    print ('not improving. random restart now')
+                    improving = False
+            # if solution not found after x restarts, quit
+        print('no solution found')
+        return False
+
+    def assignRandomValues(self):
+        for cell in self.cells:
+            cell.number = random.randint(1, len(self.columns))
+        # print('len of columns:')
+        # print(len(self.columns))
+        return
+
+    def decreaseTemp(self, temp):
+        temp = temp * 0.8
+
+    def getProbabilityAccept(self, temp, energy):
+        return 1 - (energy / temp)
+
+    def getConstraintsViolated(self):
+        invalid = 0
+        for cell in self.cells:
+            if not (cell.isValueValid(cell.number)):
+                invalid += 1
+        return invalid
 
     # get_input()
     # backtrack(0, 0)
