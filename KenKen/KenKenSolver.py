@@ -12,6 +12,7 @@ class KenKenSolver:
     boxes = {}
     cells = []
     backtrackIterations = 0
+    bestBacktrackingIterations = 0
 
     # Create rows and columns
     for x in range(rowLength):
@@ -65,6 +66,7 @@ class KenKenSolver:
 
     # TODO Ensure handling of iteration count is correct
     def backtrack(self, index):
+        self.backtrackIterations += 1
         # Base case: reached the end
         if index == len(self.cells):
             self.print_puzzle()
@@ -81,30 +83,57 @@ class KenKenSolver:
                     self.cells[index].removeValue(i)
         return False
 
-    def bestBacktracking(self, index, iterations):
-        # Base case: reached the end
-        if index == len(self.cells):
-            self.print_puzzle()
-            print(iterations)
-            return True
-        cell = self.cells[index]
-        self.print_puzzle()
-        # Rather than iterate from 1 to 6 if there are 6 cells in a row, for example,
-        # Iterate only through the numbers that are valid from the start.
-        # TODO is this actually more efficient?
-        validValues = []
-        for i in range(self.rowLength):  # O(n)
-            i = i + 1
-            if cell.row.isValueValid(i) and cell.column.isValueValid(i):
-                validValues.append(i)
-        for i in validValues:  # O(logn)
-            iterations += 1
-            if cell.assignValue(i):  # O(n^2)
-                if self.bestBacktracking(index + 1, iterations):
+    # def bestBacktracking(self, index):
+    #     self.bestBacktrackingIterations += 1
+    #     # Base case: reached the end
+    #     if index == len(self.cells):
+    #         self.print_puzzle()
+    #         print(self.bestBacktrackingIterations)
+    #         return True
+    #     cell = self.cells[index]
+    #     # self. print_puzzle()
+    #     # Rather than iterate from 1 to 6 if there are 6 cells in a row, for example,
+    #     # Iterate only through the numbers that are valid from the start.
+    #     # TODO is this actually more efficient?
+    #     validValues = []
+    #     for i in range(self. rowLength): #O(n)
+    #         # self.bestBacktrackingIterations += 1
+    #         i = i + 1
+    #         if cell.row.isValueValid(i) and cell.column.isValueValid(i):
+    #             validValues.append(i)
+    #     for i in validValues: #O(logn)
+    #         # self.bestBacktrackingIterations += 1
+    #         if cell.assignValue(i): #O(n^2)
+    #             if self.bestBacktracking(index + 1):
+    #                 return True
+    #             else:
+    #                 cell.removeValue(i)
+    #     return False
+
+    def bestBacktracking(self, index):
+        boxList = []
+        for key in self.boxes:
+            boxList.append(self.boxes[key])
+        self.bestBacktrackingSearch(boxList, index)
+
+
+    def bestBacktrackingSearch(self, boxList, index):
+        # if index == len(boxList):
+        #     self.print_puzzle()
+        #     # print(self.bestBacktrackingIterations)
+        #     return True
+        box = boxList[index]
+        options = box.getOptions()
+        for i in range(len(options)):
+            if box.applyValues(options[i]):
+                self.print_puzzle()
+                if self.bestBacktrackingSearch(boxList, index + 1):
                     return True
                 else:
-                    cell.removeValue(i)
-                    self.print_puzzle()
+                    for o in options[i]:
+                        for cell in box.cells:
+                            cell.bestRemoveValue(i)
+                    # box.removeValues()
         return False
 
     #   Most Constrained Variable:

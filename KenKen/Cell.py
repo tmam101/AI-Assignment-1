@@ -8,12 +8,14 @@ class Cell:
     row = None
     column = None
     validValues = None
+    rowColumnLength = None
 
     def __init__(self, letter, number, box, rowColumnLength):
         self.letter = letter
         self.number = number
         self.box = box
         self.validValues = []
+        self.rowColumnLength = rowColumnLength
         for x in range(rowColumnLength):
             self.validValues.append(x+1)
 
@@ -25,18 +27,31 @@ class Cell:
             return True
         return False
 
-    # TODO probably going to be an error.  I don't know if we can edit validValues while we are iterating through it.
-    # Maybe in bestBacktracking we should iterate through a copy of validValues.
+    # # TODO probably going to be an error.  I don't know if we can edit validValues while we are iterating through it.
+    # # Maybe in bestBacktracking we should iterate through a copy of validValues.
+    # def bestAssignValue(self, value):
+    #     if self.box.isValueValid(value):
+    #         self.number = value
+    #         self.validValues.remove(value)
+    #         return True
+    #     return False
+
     def bestAssignValue(self, value):
-        if self.box.isValueValid(value):
+        if self.bestIsValueValid(value):
             self.number = value
-            self.validValues.remove(value)
+            self.row.addValue(value)
+            self.column.addValue(value)
             return True
         return False
 
+    # def bestRemoveValue(self, value):
+    #     self.number = 0
+    #     self.validValues.append(value)
+
     def bestRemoveValue(self, value):
         self.number = 0
-        self.validValues.append(value)
+        self.row.removeValue(value)
+        self.column.removeValue(value)
 
     def removeValue(self, value):
         self.number = 0
@@ -48,6 +63,6 @@ class Cell:
 
     # TODO For best backtracking search
     def bestIsValueValid(self, value):
-        return
+        return self.row.isValueValid(value) and self.column.isValueValid(value)
 
 

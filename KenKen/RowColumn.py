@@ -14,4 +14,5 @@ class RowColumn:
         self.usedValues.add(value)
 
     def removeValue(self, value):
-        self.usedValues.remove(value)
+        if value in self.usedValues:
+            self.usedValues.remove(value)
