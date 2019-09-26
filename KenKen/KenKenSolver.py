@@ -4,7 +4,7 @@ from RowColumn import RowColumn
 import math
 import random
 import time
-
+import numpy
 
 class KenKenSolver:
     rowLength = int(raw_input())
@@ -167,9 +167,14 @@ class KenKenSolver:
     # TODO Start at the largest(or smallest) box, recursively go to the smaller(or larger) boxes
 
     def localSearch(self):
-        # number of random restarts
-        for i in range(1000):
-            degrees = 500
+        # calculate most constrained box
+        boxConstrained = numpy.zeros(2, len(self.boxes))
+        for box in self.boxes:
+            box.getOptions()
+        # number of random restarts allowed: length of loop
+        bestSoFar = 36
+        for i in range(6000):
+            degrees = 400
             self.assignRandomValues()
             print('current puzzle')
             self.print_puzzle()
@@ -187,29 +192,29 @@ class KenKenSolver:
             numWorse = 0
 
             while improving:
-                currValCell = self.cells[1].number
                 iterations += 1
-                if iterations % 5 == 0:
+                if iterations % 4 == 0:
                     degrees = degrees * 0.8
                     print('degrees')
                     print(degrees)
                     print(' ')
                 valDiff = False
                 cellToPull = random.randint(1, (len(self.columns) ^ 2))
+                currValCell = self.cells[cellToPull].number
                 while not valDiff:
                     self.cells[cellToPull].number = random.randint(1, len(self.columns))
                     if currValCell != self.cells[cellToPull].number:
                         valDiff = True
                 # evaluate new state
                 # print(iterations)
-
+                # get energy (constraints violated) of neighbor state
                 nextEn = self.getConstraintsViolated()
                 print('next puzzle')
                 self.print_puzzle()
                 print('constraints violated: ')
                 print(nextEn)
                 print (' ')
-                # if state is better, accept. otherwise, accept based on probability
+                # if neighbor state is better, accept. otherwise, accept based on probability
                 if nextEn < currEn:
                     print('next is better')
                     currEn = nextEn
@@ -224,12 +229,16 @@ class KenKenSolver:
                     else:
                         # restore puzzle to former state- neighbor not accepted
                         self.cells[1].number = currValCell
-                # if not better after x iterations, random restart but store current best solution
-                if numWorse > 100:
+                # if not improving after x iterations, random restart but store current best solution
+                if numWorse > 40:
+                    if bestSoFar > currEn:
+                        bestSoFar = currEn
                     print ('not improving. random restart now')
                     improving = False
             # if solution not found after x restarts, quit
         print('no solution found')
+        print ('best so far:')
+        print(bestSoFar)
         return False
 
     def assignRandomValues(self):
