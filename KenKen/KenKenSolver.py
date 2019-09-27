@@ -150,14 +150,12 @@ class KenKenSolver:
         return False
 
     def localSearch(self):
-        # calculate most constrained box
-        # TODO Decide what to do about this
-        # boxConstrained = numpy.zeros(2, len(self.boxes))
-        for key in self.boxes:
-            self.boxes[key].getOptions()
         # number of random restarts allowed: length of loop
         bestSoFar = 36
-        for i in range(6000):
+        # make set of states that have been seen
+        statesSet = set()
+
+        for i in range(1000):
             degrees = 400
             self.assignRandomValues()
             print('current puzzle')
@@ -183,7 +181,7 @@ class KenKenSolver:
                     print(degrees)
                     print(' ')
                 valDiff = False
-                cellToPull = random.randint(1, (len(self.columns) ^ 2))
+                cellToPull = random.randint(1, (len(self.columns) ** 2)-1)
                 currValCell = self.cells[cellToPull].number
                 while not valDiff:
                     self.cells[cellToPull].number = random.randint(1, len(self.columns))
@@ -214,7 +212,7 @@ class KenKenSolver:
                         # restore puzzle to former state- neighbor not accepted
                         self.cells[1].number = currValCell
                 # if not improving after x iterations, random restart but store current best solution
-                if numWorse > 40:
+                if numWorse > 100:
                     if bestSoFar > currEn:
                         bestSoFar = currEn
                     print ('not improving. random restart now')
@@ -226,8 +224,11 @@ class KenKenSolver:
         return False
 
     def assignRandomValues(self):
-        for cell in self.cells:
-            cell.number = random.randint(1, len(self.columns))
+        valuesAvailable = [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6]
+
+        for i in range(len(self.cells)):
+            self.cells[i].number = random.choice(valuesAvailable)
+            valuesAvailable.remove(self.cells[i].number)
         # print('len of columns:')
         # print(len(self.columns))
         return
@@ -244,3 +245,9 @@ class KenKenSolver:
             if not (cell.isValueValid(cell.number)):
                 invalid += 1
         return invalid
+
+    def stateToString(self):
+        stateString = ''
+        for cell in self.cells:
+            stateString = stateString + str(cell.number)
+        return stateString
