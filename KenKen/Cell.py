@@ -14,10 +14,10 @@ class Cell:
         self.letter = letter
         self.number = number
         self.box = box
-        self.validValues = []
+        # self.validValues = []
         self.rowColumnLength = rowColumnLength
-        for x in range(rowColumnLength):
-            self.validValues.append(x+1)
+        # for x in range(rowColumnLength):
+        #     self.validValues.append(x+1)
 
     def assignValue(self, value):
         if self.isValueValid(value):

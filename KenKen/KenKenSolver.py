@@ -67,7 +67,7 @@ class KenKenSolver:
 
     # TODO Ensure handling of iteration count is correct
     def backtrack(self, index):
-        # self.backtrackIterations += 1
+        self.backtrackIterations += 1
         # Base case: reached the end
         if index == len(self.cells):
             self.print_puzzle()
@@ -76,7 +76,6 @@ class KenKenSolver:
             return True
         for i in range(self.rowLength):  # O(n)
             i = i + 1
-            self.backtrackIterations += 1
             if self.cells[index].assignValue(i):  # O(n^2)
                 if self.backtrack(index + 1):
                     return True
@@ -84,87 +83,45 @@ class KenKenSolver:
                     self.cells[index].removeValue(i)
         return False
 
-    # def bestBacktracking(self, index):
-    #     self.bestBacktrackingIterations += 1
-    #     # Base case: reached the end
-    #     if index == len(self.cells):
-    #         self.print_puzzle()
-    #         print(self.bestBacktrackingIterations)
-    #         return True
-    #     cell = self.cells[index]
-    #     # self. print_puzzle()
-    #     # Rather than iterate from 1 to 6 if there are 6 cells in a row, for example,
-    #     # Iterate only through the numbers that are valid from the start.
-    #     # TODO is this actually more efficient?
-    #     validValues = []
-    #     for i in range(self. rowLength): #O(n)
-    #         # self.bestBacktrackingIterations += 1
-    #         i = i + 1
-    #         if cell.row.isValueValid(i) and cell.column.isValueValid(i):
-    #             validValues.append(i)
-    #     for i in validValues: #O(logn)
-    #         # self.bestBacktrackingIterations += 1
-    #         if cell.assignValue(i): #O(n^2)
-    #             if self.bestBacktracking(index + 1):
-    #                 return True
-    #             else:
-    #                 cell.removeValue(i)
-    #     return False
+    sortedCells = []
 
-    boxList = []
-
-    def sortBoxList(self):
-        for i in range(len(self.boxList)):
-            value = len(self.boxList[i].getOptions())
-            if i < len(self.boxList) - 1:
-                nextValue = len(self.boxList[i+1].getOptions())
-                if value < nextValue:
-                    temp = self.boxList[i+1]
-                    self.boxList[i+1] = self.boxList[i]
-                    self.boxList[i] = temp
-                    self.sortBoxList() #todo probably inefficient
+    def sortCells(self):
+        for i in range(len(self.sortedCells)):
+            value = len(self.sortedCells[i].validValues)
+            if i < len(self.sortedCells) - 1:
+                nextValue = len(self.sortedCells[i+1].validValues)
+                if value > nextValue:
+                    temp = self.sortedCells[i+1]
+                    self.sortedCells[i+1] = self.sortedCells[i]
+                    self.sortedCells[i] = temp
+                    self.sortCells() #todo probably inefficient
 
     def bestBacktracking(self, index):
-        start_time = time.time()
-        # boxList = []
         for key in self.boxes:
-            self.boxList.append(self.boxes[key])
-        # self.sortBoxList()
-        self.bestBacktrackingSearch(self.boxList, index)
+            self.boxes[key].getOptions()
+        start_time = time.time()
+        for cell in self.cells:
+            self.sortedCells.append(cell)
+        self.sortCells()
+        self.bestBacktrackingSearch(self.sortedCells, index)
         print("--- %s seconds ---" % (time.time() - start_time))
 
-    def bestBacktrackingSearch(self, boxList, index):
+    def bestBacktrackingSearch(self, sortedCells, index):
         self.bestBacktrackingIterations += 1
-        if index == len(boxList):
+        if index == len(sortedCells):
             self.print_puzzle()
             print(self.bestBacktrackingIterations)
             return True
-        # self.print_puzzle()
-        box = boxList[index]
-        options = box.getOptions()
-        for i in range(len(options)):
-            # self.bestBacktrackingIterations += 1
-            if box.applyValues(options[i]):
-                if self.bestBacktrackingSearch(boxList, index + 1):
+        self.print_puzzle()
+        cell = sortedCells[index]
+        options = cell.validValues
+        for i in options:
+            if cell.assignValue(i):
+                if self.bestBacktrackingSearch(sortedCells, index + 1):
                     return True
                 else:
-                    for o in options[i]:
-                        for cell in box.cells:
-                            cell.bestRemoveValue(o)
+                    cell.removeValue(i)
         return False
-
-    #   Most Constrained Variable:
-    #   Goal of 2, 2 cells, (1 1). Goal of 11, (5,6)(6,5).  Goal of 6, (1,5)(5,1)(2,4)(4.2)
-    #   Most Constraining variable
-    #
-    #   Least Constraining value
-    #
-    #   Filtering or Forward Checking
-    #   TODO are we already doing this? We store used numbers in each row and column.
-    #   Maybe for this, instead of testing 1-6, just test the valid values for that cell.  But does that actually make it more efficient?
-    #   TODO can we use the same cells/boxes/rows for best backtracking, or should we create a new structure with different handling of things?
-
-    # TODO Start at the largest(or smallest) box, recursively go to the smaller(or larger) boxes
 
     def localSearch(self):
         # number of random restarts

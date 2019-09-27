@@ -86,6 +86,12 @@ class Box:
             for i in range(cellCount):
                 solutions.append(0)
             self.calculateOptions(solutions, 0)
+            uniqueNumbers = set([])
+            for i in range(len(self.options)):
+                for j in range(len(self.options[i])):
+                    uniqueNumbers.add(self.options[i][j])
+            for cell in self.cells:
+                cell.validValues = uniqueNumbers
             return self.options
         elif self.operation == "-":
             for i in range(rowLength):
@@ -94,6 +100,12 @@ class Box:
                 if (0 < other < rowLength + 1) and (other != i):
                     self.options.append([i, other])
                     self.options.append([other, i])
+                uniqueNumbers = set([])
+                for i in range(len(self.options)):
+                    for j in range(len(self.options[i])):
+                        uniqueNumbers.add(self.options[i][j])
+                for cell in self.cells:
+                    cell.validValues = uniqueNumbers
             return self.options
         elif self.operation == "/":
             for i in range(rowLength):
@@ -104,6 +116,12 @@ class Box:
                     self.options.append([i, other])
                     self.options.append([other, i])
                     # todo handle duplicates like [1,1]
+            uniqueNumbers = set([])
+            for i in range(len(self.options)):
+                for j in range(len(self.options[i])):
+                    uniqueNumbers.add(self.options[i][j])
+            for cell in self.cells:
+                cell.validValues = uniqueNumbers
             return self.options
 
     def applyValues(self, values):
