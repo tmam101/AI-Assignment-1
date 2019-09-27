@@ -10,7 +10,6 @@ class RowColumn:
         return value not in self.usedValues
 
     def addValue(self, value):
-        # TODO Here its considering this a dict rather than a set
         self.usedValues.add(value)
 
     def removeValue(self, value):

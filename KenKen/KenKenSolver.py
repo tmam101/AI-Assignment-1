@@ -5,6 +5,7 @@ import math
 import random
 import time
 
+# TODO Does this need to be able to accept multiple inputs one after another?
 
 class KenKenSolver:
     rowLength = int(raw_input())
@@ -66,6 +67,10 @@ class KenKenSolver:
         self.backtrackIterations = 0
 
     # TODO Ensure handling of iteration count is correct
+    # For every cell, tries every number from 1 to the number of cells in a row.
+    # If none are valid for a cell,
+    # retreat to the previous cell and change its value to the next highest value that is valid for that cell.
+    # Then continue to the next cell, trying all values from there.
     def backtrack(self, index):
         self.backtrackIterations += 1
         # Base case: reached the end
@@ -74,52 +79,73 @@ class KenKenSolver:
             print(self.backtrackIterations)
             self.clearPuzzle()
             return True
-        for i in range(self.rowLength):  # O(n)
+        # From 1 to the number of cells in a row,
+        for i in range(self.rowLength):
             i = i + 1
-            if self.cells[index].assignValue(i):  # O(n^2)
+            # If this value for this cell is valid,
+            if self.cells[index].assignValue(i):
+                # Assign it and try the next.
                 if self.backtrack(index + 1):
                     return True
                 else:
+                    # Empty the cell
                     self.cells[index].removeValue(i)
         return False
 
     sortedCells = []
 
+    # Sort the cells in ascending order according to how many valid values that cell has.
+    # For example: if the row length is 6, and a box has 2 cells, and they must add up to 11,
+    # then each cell could only contain 6 or 5, because those are the only 2 values from 1 to 6 that add up to 11.
+    # Each of these cells would have 2 valid values, and would likely be near the beginning of this list.
+    # This list is stored in self.sortedCells
     def sortCells(self):
         for i in range(len(self.sortedCells)):
             value = len(self.sortedCells[i].validValues)
             if i < len(self.sortedCells) - 1:
                 nextValue = len(self.sortedCells[i+1].validValues)
+                # If the current cell has more options than the next cell,
                 if value > nextValue:
+                    # Switch the cells.
                     temp = self.sortedCells[i+1]
                     self.sortedCells[i+1] = self.sortedCells[i]
                     self.sortedCells[i] = temp
                     self.sortCells() #todo probably inefficient
 
+    # Entry point for the best backtracking solution.
     def bestBacktracking(self, index):
+        # Generate the valid options for each box.  This function also generates each cell's validValues list.
         for key in self.boxes:
             self.boxes[key].getOptions()
         start_time = time.time()
+        # Add cells to sortedCells.
         for cell in self.cells:
             self.sortedCells.append(cell)
+        # Sort the cells.
         self.sortCells()
+        # Use sortedCells to conduct the best backtracking search.
         self.bestBacktrackingSearch(self.sortedCells, index)
         print("--- %s seconds ---" % (time.time() - start_time))
 
+    # The recursive search that the best backtracking function uses.
     def bestBacktrackingSearch(self, sortedCells, index):
         self.bestBacktrackingIterations += 1
+        # Base case: the search has passed the last cell
         if index == len(sortedCells):
             self.print_puzzle()
             print(self.bestBacktrackingIterations)
             return True
-        self.print_puzzle()
         cell = sortedCells[index]
         options = cell.validValues
+        # For every possible valid value for the cell,
         for i in options:
+            # If that value is valid according to the current row and column situation,
             if cell.assignValue(i):
+                # Assign it and search the next cell
                 if self.bestBacktrackingSearch(sortedCells, index + 1):
                     return True
                 else:
+                    # Empty the cell
                     cell.removeValue(i)
         return False
 
